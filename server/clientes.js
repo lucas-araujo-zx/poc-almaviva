@@ -128,9 +128,9 @@ export function readClientRows() {
   const paths = csvPath()
   let text = ''
   try {
-    text = readFileSync(paths.deployed, 'utf8')
-  } catch {
     text = readFileSync(paths.source, 'utf8')
+  } catch {
+    text = readFileSync(paths.deployed, 'utf8')
   }
   return clientsFromCsv(text)
 }

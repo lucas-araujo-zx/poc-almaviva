@@ -1,10 +1,27 @@
-import { cp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { access, cp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(root, '.vercel/output')
 const funcDir = join(output, 'functions/api/login.func')
+
+async function csvSource(projectRoot) {
+  const bundled = join(projectRoot, 'server/clientes.csv')
+  const outside = join(projectRoot, '../DADOS_MOCK_PREENCHIDO.csv')
+  try {
+    await access(outside)
+    return outside
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+  }
+  try {
+    await access(bundled)
+  } catch {
+    throw new Error('Planilha mock ausente. Inclua almaviva/lab/server/clientes.csv no projeto.')
+  }
+  return bundled
+}
 
 await rm(output, { recursive: true, force: true })
 await mkdir(funcDir, { recursive: true })
@@ -14,7 +31,7 @@ await cp(join(root, 'server/plugin.js'), join(funcDir, 'plugin.js'))
 await cp(join(root, 'server/agents.js'), join(funcDir, 'agents.js'))
 await cp(join(root, 'server/clientes.js'), join(funcDir, 'clientes.js'))
 await cp(join(root, 'server/conversation.js'), join(funcDir, 'conversation.js'))
-await cp(join(root, '../DADOS_MOCK_PREENCHIDO.csv'), join(funcDir, 'clientes.csv'))
+await cp(await csvSource(root), join(funcDir, 'clientes.csv'))
 await writeFile(join(funcDir, 'package.json'), `${JSON.stringify({ type: 'module' }, null, 2)}\n`)
 await writeFile(
   join(funcDir, '.vc-config.json'),
