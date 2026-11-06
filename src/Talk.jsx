@@ -200,7 +200,7 @@ function sheetValue(value) {
 
 function lastThreeDigits(value) {
   const digits = String(value ?? '').replace(/\D/g, '')
-  return digits.length >= 3 ? digits.slice(3) : ''
+  return digits.length >= 3 ? digits.slice(:3) : ''
 }
 
 const CLIENT_GROUPS = [
