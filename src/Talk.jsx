@@ -237,7 +237,7 @@ function ClientSheet({ client }) {
       <p className="kicker">Cliente na simulação</p>
       <h2>{displayName(client.nome) || 'Sem nome'}</h2>
       <p className="client-tail">
-        <span>Últimos 3 do CPF</span>
+        <span>Primeiros 3 dígitos do CPF</span>
         <strong>{tail || '—'}</strong>
       </p>
       {CLIENT_GROUPS.map(([title, fields]) => (
