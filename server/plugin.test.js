@@ -42,7 +42,7 @@ test('catalog lista os dados da base e a sessão só abre para um id dela', asyn
   globalThis.fetch = async (url) => {
     const href = String(url)
     if (href.includes('/agents/')) {
-      return new Response(JSON.stringify({ name: 'Sandro' }), {
+      return new Response(JSON.stringify({ name: 'Alda' }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       })
@@ -80,7 +80,7 @@ test('catalog lista os dados da base e a sessão só abre para um id dela', asyn
   try {
     const catalog = await call('GET', '/api/catalog', env.loginToken)
     assert.equal(catalog.status, 200)
-    assert.equal(catalog.payload.voice.name, 'Sandro')
+    assert.equal(catalog.payload.voice.name, 'Alda')
     assert.ok(catalog.payload.clients.length >= 40)
     const joaquim = catalog.payload.clients.find((item) => item.id === '3282041ID')
     assert.equal(joaquim.nome, 'JOAQUIM SILVA')

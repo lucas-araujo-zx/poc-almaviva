@@ -494,7 +494,7 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
     }
     return messages.map((item) => (
       <li key={item.id} className={`bubble ${item.role}`}>
-        <span>{item.role === 'user' ? 'Você' : 'Sandro'}</span>
+        <span>{item.role === 'user' ? 'Você' : 'Alda'}</span>
         <p>{item.text}</p>
       </li>
     ))
@@ -581,7 +581,7 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
         {mode === 'text' ? (
           <section className="chat" aria-live="polite">
             <ol className="messages" ref={listRef}>
-              {transcript(status === 'connecting' ? 'Conectando...' : 'Escreva para o Sandro.')}
+              {transcript(status === 'connecting' ? 'Conectando...' : 'Escreva para a Alda.')}
             </ol>
             <form className="composer" onSubmit={send}>
               <input

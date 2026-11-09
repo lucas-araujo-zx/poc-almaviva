@@ -4,8 +4,8 @@ const AGENT_ID = /^[a-zA-Z0-9_-]{8,128}$/
 
 export const VOICE_AGENT = {
   id: 'agent_7601m6p40xvefzt8w8k6nytyr4mr',
-  name: 'Almaviva - Sandro - Agente de cobrança',
-  description: 'Conversa por voz com o Sandro, usando os dados do cliente escolhido na base.',
+  name: 'Almaviva - Alda - Agente de cobrança',
+  description: 'Conversa por voz com a Alda, usando os dados do cliente escolhido na base.',
 }
 
 export function isAgentId(value) {

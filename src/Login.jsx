@@ -38,7 +38,7 @@ export function Login({ error, loading, onSubmit }) {
       <section className="login-stage">
         <div className="login-copy">
           <h1>
-            <span>Teste o Sandro com um cliente da base.</span>
+            <span>Teste a Alda com um cliente da base.</span>
           </h1>
           <p>
             O mesmo token da bancada abre o laboratório. Depois você escolhe a

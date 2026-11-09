@@ -80,7 +80,7 @@ export function Picker({ clients, onOpen, onSignOut }) {
       <main className="picker">
         <header className="picker-head">
           <p className="kicker">Almaviva Experience</p>
-          <h1>Qual cliente o Sandro vai atender?</h1>
+          <h1>Qual cliente a Alda vai atender?</h1>
           <p>
             Os clientes estão separados por produto, em ordem alfabética. A
             conversa usa os dados da pessoa escolhida.
