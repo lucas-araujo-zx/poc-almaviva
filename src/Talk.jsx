@@ -1,6 +1,14 @@
 import { Conversation } from '@elevenlabs/client'
 import { useEffect, useRef, useState } from 'react'
 import { conversationResult, signedUrl } from './api.js'
+import {
+  markAgentSpeaking,
+  onIsolationMode,
+  primeModels,
+  releaseIsolation,
+  setIngesting,
+  warmAudio,
+} from './isolate.js'
 import { Orb } from './Orb.jsx'
 
 const LOGO = 'https://www.almavivaexperience.com.br/dcm_files/2024/07/Almaviva_Experience_500x136_colore.png'
@@ -268,6 +276,7 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
   const [result, setResult] = useState(null)
   const [resultError, setResultError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [directMic, setDirectMic] = useState(false)
   const sessionRef = useRef(null)
   const listRef = useRef(null)
 
@@ -278,9 +287,12 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
     }
   }, [messages, mode, status])
 
+  useEffect(() => onIsolationMode(setDirectMic), [])
+
   useEffect(() => () => {
     sessionRef.current?.endSession?.().catch(() => {})
     sessionRef.current = null
+    releaseIsolation()
   }, [])
 
   useEffect(() => {
@@ -347,6 +359,7 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
   }
 
   async function stop() {
+    setIngesting(false)
     const current = sessionRef.current
     rememberConversation(current)
     sessionRef.current = null
@@ -357,9 +370,12 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
     } catch {
       // A sessão já pode ter caído.
     }
+    releaseIsolation()
+    setDirectMic(false)
   }
 
   function openMic(conversation) {
+    setIngesting(true)
     try {
       conversation.setMicMuted(false)
     } catch {
@@ -373,12 +389,15 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
     setResultError('')
     setConversationId('')
     setCopied(false)
+    setDirectMic(false)
     setStatus('connecting')
     setMessages([])
     try {
       if (nextMode !== 'text') {
+        warmAudio()
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         stream.getTracks().forEach((track) => track.stop())
+        await primeModels()
       }
       const session = await signedUrl(token, client.id)
       const conversation = await Conversation.startSession({
@@ -391,11 +410,15 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
         onDisconnect: () => {
           rememberConversation(sessionRef.current)
           sessionRef.current = null
+          setIngesting(false)
+          markAgentSpeaking(false)
           setAgentMode('listening')
           setStatus((current) => (current === 'connected' || current === 'connecting' ? 'ended' : current))
         },
         onModeChange: ({ mode: next }) => {
-          setAgentMode(next === 'speaking' ? 'speaking' : 'listening')
+          const speaking = next === 'speaking'
+          setAgentMode(speaking ? 'speaking' : 'listening')
+          markAgentSpeaking(speaking)
         },
         onMessage: (message) => pushMessage(roleOf(message), message?.message),
         onError: (message) => {
@@ -414,6 +437,8 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
         conversation.sendUserMessage(opening)
       }
     } catch (reason) {
+      releaseIsolation()
+      setDirectMic(false)
       setStatus('idle')
       const denied = reason instanceof DOMException && reason.name === 'NotAllowedError'
       setError(
@@ -538,6 +563,9 @@ export function Talk({ token, agent, client, onBack, onSignOut }) {
           <p className="talk-status">
             {live ? (agentMode === 'speaking' ? 'Falando' : 'Ouvindo') : 'Encerrada'}
           </p>
+        ) : null}
+        {mode === 'voice' && live && directMic ? (
+          <p className="talk-note">A voz está passando direto. O isolador não entrou nesta chamada.</p>
         ) : null}
 
         {mode === 'voice' && ended && conversationId ? (
